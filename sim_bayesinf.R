@@ -1,6 +1,8 @@
 ## Usage: "Rscript sim_bayesinf.R compile" to make the require stan models
 ## Compile once and make sure "model.RDS" and "model3.RDS" are in your directory
 ## Then "Rscript sim_bayesinf.R <S> <Fst> <seed>" for integer seeds to run the stan models
+## Author: Daniel Lawson (dan.lawson@bristol.ac.uk)
+## Date: August 2020
 
 library("rstan")
 rstan_options(auto_write = TRUE)
@@ -79,11 +81,11 @@ model {
 
 ## Create the stan model compiled object
 if(compile){
-    sm <- stan_model(model_code = simle_model_code)
-    saveRDS(sm,"simle_model.RDS")
+    sm <- stan_model(model_code = simple_model_code)
+    saveRDS(sm,"simple_model.RDS")
     ##sm2 <- stan_model(model_code = model2_code)
     smd <- stan_model(model_code = drift_model_code)
-    saveRDS(sm4,"drift_model.RDS")
+    saveRDS(smd,"drift_model.RDS")
     stop("Finished compiling code")
 }else{
     sm=readRDS("simple_model.RDS")
@@ -129,21 +131,16 @@ getS=function(stanres){
     c(mean=mean(svals),quantile(svals,c(0.05,0.25,0.5,0.75,0.95)))
 }
 
-########
-myinit=function(){
-    list(S=runif(1,-2,2),
-         sigma_b=runif(1,0,2),
-         sigma_beta=runif(1,0,2),#abs(rnorm(1,0,2)),
-         sigma_f=abs(rnorm(1,0,0.2)),
-         b=rnorm(length(test$beta),test$beta,0.01),
-         p=test$f)
-}
-
 
 #########
-thin=500
-N=10000
-iter=10000
+#########
+#########
+## START OF DATA GENERATION
+
+## Some parameters we don't need to change
+thin=500 # Report mcmc samples after this many steps
+N=10000 # Number of SNPs
+iter=10000 # Number of MCMC iterations (increase if you have convergence problems)
 
 ## Make appropriate data
 test=make_test_data(N,sigma_b=0.01,sigma_f=Fst,S=S)
@@ -153,10 +150,15 @@ data_direct=data_frame_to_stan_list(test,"true")
 data_obs=data_frame_to_stan_list(test,"obs",Fst=Fst)
 
 
-smd_obs<-sampling(smd,data=data_obs,chains=2,init=myinit,iter=iter,thin=thin)
+#########
+## START OF INFERENCE
+
+## Infer in the drift model, observed and direct datasets
+smd_obs<-sampling(smd,data=data_obs,chains=2,iter=iter,thin=thin)
 test_obs<-sampling(sm,data=data_obs,chains=2,iter=iter,thin=thin)
 test_direct<-sampling(sm,data=data_direct,chains=2,iter=iter,thin=thin)
 
+## Report output
 allres=list(
     res=cbind(direct=getS(test_direct),
               full=getS(smd_obs),
@@ -165,8 +167,9 @@ allres=list(
         obs=test_obs,
         direct=test_direct,
         smd=smd_obs
-    )
-}
+)
+
 
 ############
+## Write results to disk
 save(allres, file=paste0('s_',S,'_Fst',Fst,'_seed',seed,'.RData'))

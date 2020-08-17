@@ -1,6 +1,6 @@
 # genomic Architecture
 
-Code for Ashraf and Lawson 2020 (to appear).
+Code for Ashraf and Lawson 2020 (bioxiv link to follow).
 
 ## Installation of RStan
 
@@ -36,3 +36,24 @@ e.g.
 Rscript sim_bayesinf.R -1 0.1 1
 ```
 The results will be saved to an RData object called `paste0(s_',S,'_Fst',Fst,'_seed',seed,'.RData')`
+
+To run the inference using the 1000G frequencies, run:
+
+```sh
+Rscript sim_bayesinf_1kg.R <S> <pop> <Fst> <seed>
+```
+where `<pop>` is the name of the 1000G population of interest (afr,eur,sas,eas, or amr). The results will be saved to an RData object called `paste0('s_',S,'_target',target,'_Fst',Fst,'_seed',seed,'_1kg.RData')`.
+
+## Notes on run time
+
+We used 10000 MCMC iterations and 10000 SNPs in our paper, and the scripts are set to these values. These take over a day to run and so are not suitable for experimentation.
+
+The model likelihood evaluation is linear in the number of SNPs, but the convergence time grows with this number, and Stan uses a gradient-based optimiser that is quadratic in the number of parameters. Therefore, you can obtain valid experimentation using say 10k iterations and 1k SNPs and this takes under a minute. However, many SNPs are needed to obtain a stable distribution and so you may need more SNPs to accurately replicate our infererences.
+
+## Thoughts on practical usage
+
+This is a development model and is not designed for serious deployment without care; it is trivial to introduce uncertainties in the true values of $\beta_i$ as well as weights for each SNP. However, moving into a dedicated MCMC framework may be necessary to obtain fast convergence for larger datasets.
+
+## Contact
+
+Daniel Lawson [dan.lawson@bristol.ac.uk](mailto:dan.lawson@bristol.ac.uk)
