@@ -3,6 +3,7 @@
 ## Then "Rscript sim_bayesinf.R <S> <Fst> <seed>" for integer seeds to run the stan models
 ## Author: Daniel Lawson (dan.lawson@bristol.ac.uk)
 ## Date: August 2020
+## Licence: GPLv3
 
 library("rstan")
 rstan_options(auto_write = TRUE)
