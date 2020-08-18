@@ -1,6 +1,8 @@
-# genomic Architecture
+# Genomic Architecture
 
-Code for Ashraf and Lawson 2020 (bioxiv link to follow).
+This is code for [Ashraf and Lawson 2020](https://www.biorxiv.org/content/10.1101/2020.08.17.254110v1) (biorxiv link) "Genetic drift from the out-of-Africa bottleneck leads to biased estimation of genetic architecture and selection".
+
+It implements a model of genetic drift that highlights some issues in how Genomic Architecture is understood in the context of selection.
 
 ## Installation of RStan
 
