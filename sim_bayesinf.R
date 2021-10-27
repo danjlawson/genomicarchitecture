@@ -106,18 +106,17 @@ data_frame_to_stan_list=function(data,use="obs",Fst=NULL){
 }
 
 ## Make example test data
-make_test_data=function(N,sigma_b=0.01,sigma_beta=0,sigma_f=0.1,S=-1){
+make_test_data=function(N,sigma_b=0.01,sigma_beta=0,sigma_f=0.1,S=-1,thresh=0.01){
     p=runif(2*N,0.01,0.5)
     b=rnorm(2*N,0,sigma_b*(p*(1-p))^(S/2))
     if(sigma_f==0){ f=p
     }else f=rbeta(length(p),(1-sigma_f)*p/sigma_f,(1-sigma_f)*(1-p)/sigma_f) # Balding and Nichols model
 
-    ok=which((f>0.01)&(p>0.01))
-    if(sum(ok)>=N) {
+    ok=which((f>thresh)&(p>thresh))
+    if(length(ok)>=N) {
         ok=sample(ok,N)
     }else ok=sample(ok,N,replace=TRUE)
     f[f>0.5]=1-f[f>0.5]
-    f[f<0.01]=0.01
     if(sigma_beta==0){
       beta=b
     }else{
